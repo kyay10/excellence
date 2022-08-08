@@ -27,18 +27,17 @@ RESERVED_NAME: '_xlnm.' [a-zA-Z_]+;
 NR: ([_\\] | ExtendedChar) ValidNamedRangeChar*;
 SR_COLUMN: (WordChar | '.')+;
 start : formula | '=' formula | '{=' formula '}';
-formula : constant | reference | functionCall | '(' formula ')' | constantArray | RESERVED_NAME;
+formula : constant | reference | EXCEL_FUNCTION arguments ')' | unOpPrefix formula | formula '%' | formula binOp formula | '(' formula ')' | constantArray | RESERVED_NAME;
 constant : NUMBER | STRING | BOOL | ERROR;
-functionCall : EXCEL_FUNCTION arguments ')' | unOpPrefix formula | formula '%' | formula binOp formula;
 unOpPrefix : '+' | '-';
 binOp : '+' | '-' | '*' | '/' | '^' | '&' | '<' | '>' | '=' | '<=' | '>=' | '<>';
 arguments : argument ( ',' argument )*;
 argument : formula;
 reference : referenceItem # Item
-| ('(' reference ( ',' reference ) ')' | refFunctionName arguments ')' | reference ':' reference | reference ' ' reference) # ReferenceFunctionCall
-| '(' reference ')' # ParenthesizedREference
 | prefix referenceItem # PrefixedItem
 | FILE '!' DDECALL # FileReference
+| '(' reference ( ',' reference ) ')' # UnionReference | refFunctionName arguments ')' #ReferenceFunctionCall | reference ':' reference #ReferenceColon | reference ' ' reference # IntersectionReference
+| '(' reference ')' # ParenthesizedReference
 ;
 referenceItem : CELL | namedRange | VERTICAL_RANGE | HORIZONTAL_RANGE | UDF arguments ')' | ERROR_REF | structuredReference;
 prefix : SHEET | FILE SHEET | FILE '!' | MULTIPLE_SHEETS | FILE MULTIPLE_SHEETS | '\'' SHEET_QUOTED | '\'' FILE SHEET_QUOTED | '\'' MULTIPLE_SHEETS_QUOTED | '\'' FILE MULTIPLE_SHEETS_QUOTED;
